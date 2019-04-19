@@ -18,7 +18,8 @@ class MetaDataResolverBuilder {
                 ImageMetaDataResolver(),
                 MusicMetaDataResolver(),
                 SourceCodeMetaDataResolver(),
-                VideoMetaDataResolver()
+                VideoMetaDataResolver(),
+                UnknownMetaDataResolver() // always last
         )
     }
 }
