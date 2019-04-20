@@ -13,7 +13,7 @@ class ExecutableMetaDataResolver(
 
     override fun resolve(path: File): FileMetaData {
         return FileMetaData(
-                type = FileType.Archive
+                type = FileType.Executable
         )
     }
 }
