@@ -15,14 +15,15 @@ class FileSystemServiceImpl(
 ) : FileSystemService {
 
     override fun getRootDescendants(): List<FileInfo> {
-        return collectMetaData(rootFile)
+        return collectMetaData(rootFile, emptyList())
     }
 
     override fun getDescendantsFor(pathComponents: List<String>): List<FileInfo> {
-        return collectMetaData(pathComponentsResolver.resolve(rootFile, pathComponents))
+        val file = pathComponentsResolver.resolve(rootFile, pathComponents)
+        return collectMetaData(file, pathComponents)
     }
 
-    private fun collectMetaData(path: File): List<FileInfo> {
+    private fun collectMetaData(path: File, pathComponents: List<String>): List<FileInfo> {
         if (!path.isDirectory) throw IllegalArgumentException("File is not expandable: $path")
 
         val pathList = path.listFiles()?.asList()
@@ -30,7 +31,7 @@ class FileSystemServiceImpl(
 
         return pathList.map { file ->
             FileInfo(
-                    directoryPathComponents = emptyList(), //todo: calc path components
+                    directoryPathComponents = pathComponents,
                     name = file.name,
                     metaData = metaDataService.getMetaData(file)
             )
