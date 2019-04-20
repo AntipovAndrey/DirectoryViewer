@@ -10,7 +10,7 @@ abstract class AbstractMetaDataResolver(
 
     final override fun resolveMetaData(path: File): FileMetaData? {
         try {
-            if (!path.exists() || !isSupported(path)) {
+            if (!isSupported(path)) {
                 return null
             }
             return resolve(path)
