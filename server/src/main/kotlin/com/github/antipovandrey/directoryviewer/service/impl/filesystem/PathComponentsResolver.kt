@@ -1,10 +1,13 @@
 package com.github.antipovandrey.directoryviewer.service.impl.filesystem
 
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.io.File
 
 @Component
 class PathComponentsResolver {
+
+    private val log = LoggerFactory.getLogger(PathComponentsResolver::class.java)
 
     /**
      *  Resolves given path
@@ -14,7 +17,9 @@ class PathComponentsResolver {
      *  @return resolved [File]
      */
     fun resolve(rootFile: File, pathComponents: List<String>): File {
-        return pathComponents.map { File(it) }
+        val resolvedPath = pathComponents.map { File(it) }
                 .fold(rootFile) { acc, next -> acc.resolve(next) }
+        log.info("Resolved path: {}", resolvedPath)
+        return resolvedPath
     }
 }

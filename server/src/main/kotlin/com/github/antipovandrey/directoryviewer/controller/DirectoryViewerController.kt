@@ -2,6 +2,7 @@ package com.github.antipovandrey.directoryviewer.controller
 
 import com.github.antipovandrey.directoryviewer.model.FileInfo
 import com.github.antipovandrey.directoryviewer.service.FileSystemService
+import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -20,6 +21,8 @@ class DirectoryViewerController(
         private const val WILDCARD_PATTERN = "**"
     }
 
+    private val log = LoggerFactory.getLogger(DirectoryViewerController::class.java)
+
     @GetMapping("root")
     fun getRootInfo(): FileInfo {
         return fileSystemService.getRootInfo()
@@ -33,6 +36,7 @@ class DirectoryViewerController(
                 .dropLast(1)
         val wholeUriPathComponents = request.requestURI.split(PATH_COMPONENTS_SEPARATOR)
         val filePathComponents = wholeUriPathComponents - mappingPathComponents
+        log.info("Requested descendant for path: {} original request path: {}", filePathComponents, request.requestURI)
         return fileSystemService.getDescendantsFor(filePathComponents)
     }
 }

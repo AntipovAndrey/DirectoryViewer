@@ -1,12 +1,15 @@
 package com.github.antipovandrey.directoryviewer.service.impl.metadata.resolver
 
 import com.github.antipovandrey.directoryviewer.model.FileMetaData
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 
 abstract class AbstractMetaDataResolver(
         private val supportedExtensions: Set<String>
 ) : MetaDataResolver {
+
+    private val log = LoggerFactory.getLogger(AbstractMetaDataResolver::class.java)
 
     final override fun resolveMetaData(path: File): FileMetaData? {
         try {
@@ -15,8 +18,7 @@ abstract class AbstractMetaDataResolver(
             }
             return resolve(path)
         } catch (ex: IOException) {
-            // todo: remove tracing, add log
-            ex.printStackTrace()
+            log.warn("IOException during metadata collecting", ex)
         }
         return null
     }
