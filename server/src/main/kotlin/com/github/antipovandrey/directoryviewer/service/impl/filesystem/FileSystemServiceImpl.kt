@@ -13,6 +13,7 @@ import java.io.File
 class FileSystemServiceImpl(
         @Value("\${directoryviewer.fsroot}") private val rootFile: File,
         private val pathComponentsResolver: PathComponentsResolver,
+        private val archiveVirtualFileReader: ArchiveVirtualFileReader,
         private val metaDataService: MetaDataService
 ) : FileSystemService {
 
@@ -27,11 +28,15 @@ class FileSystemServiceImpl(
     private fun collectMetaData(pathComponents: List<String>): List<FileInfo> {
         val path: File = pathComponentsResolver.resolve(rootFile, pathComponents)
 
-        val pathList = path.listFiles()?.asList() ?: throw IllegalArgumentException("Cannot expand directory $path")
-
-        return pathList.map { file ->
-            getFileInfo(file.toVirtualFile(), pathComponents)
+        val virtualFiles = if (path.isDirectory) {
+            path.listFiles()?.asList()?.map { file -> file.toVirtualFile() }
+        } else {
+            archiveVirtualFileReader.readInsideOfArchive(path, rootFile)
         }
+
+        return virtualFiles?.map { virtualFile ->
+            getFileInfo(virtualFile, pathComponents)
+        } ?: throw IllegalArgumentException("Cannot expand directory $path")
     }
 
     private fun getFileInfo(virtualFile: VirtualFile, pathComponents: List<String>): FileInfo {
