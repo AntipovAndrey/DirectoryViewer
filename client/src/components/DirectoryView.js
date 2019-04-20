@@ -9,8 +9,10 @@ import {calculateNodeId} from "../utils/nodes";
 class DirectoryView extends Component {
 
   async componentDidMount() {
-    await this.props.fetchRoot();
-    this.props.expandNode(this.props.rootDirectory)
+    if (!this.props.rootDirectory) {
+      await this.props.fetchRoot();
+      this.props.expandNode(this.props.rootDirectory);
+    }
   }
 
   nodeClicked = (entry) => {
