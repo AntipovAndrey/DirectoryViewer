@@ -1,11 +1,22 @@
 package com.github.antipovandrey.directoryviewer.service.impl.metadata.resolver
 
 import com.github.antipovandrey.directoryviewer.model.FileMetaData
+import com.github.antipovandrey.directoryviewer.model.FileType
+import org.springframework.stereotype.Component
 import java.io.File
 
-class DirectoryMetaDataResolver: MetaDataResolver {
+@Component
+class DirectoryMetaDataResolver : AbstractMetaDataResolver(emptySet()) {
 
-    override fun resolveMetaData(path: File): FileMetaData? {
-        return null
+    override fun isSupported(path: File): Boolean {
+        return path.isDirectory
+    }
+
+    override fun resolve(path: File): FileMetaData {
+        return FileMetaData(
+                type = FileType.Directory,
+                expandable = true,
+                expandSupported = path.canRead()
+        )
     }
 }

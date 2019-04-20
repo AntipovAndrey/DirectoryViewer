@@ -11,7 +11,7 @@ interface MetaDataResolver {
      * Creates metadata for given file
      *
      * @param path absolute path to create metadata
-     * @return formed [FileMetaData] or or `null` if this type of file is not supported by this resolver
+     * @return formed [FileMetaData] or `null` if this type of file is not supported by this resolver
      */
     fun resolveMetaData(path: File): FileMetaData?
 }

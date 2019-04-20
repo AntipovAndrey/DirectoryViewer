@@ -1,6 +1,6 @@
 package com.github.antipovandrey.directoryviewer.controller
 
-import com.github.antipovandrey.directoryviewer.model.FileMetaData
+import com.github.antipovandrey.directoryviewer.model.FileInfo
 import com.github.antipovandrey.directoryviewer.service.FileSystemService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -21,12 +21,12 @@ class DirectoryViewerController(
     }
 
     @GetMapping
-    fun getRootDescendants(): List<FileMetaData> {
+    fun getRootDescendants(): List<FileInfo> {
         return fileSystemService.getRootDescendants()
     }
 
     @GetMapping(WILDCARD_PATTERN)
-    fun getDescendantsForPath(request: HttpServletRequest): List<FileMetaData> {
+    fun getDescendantsForPath(request: HttpServletRequest): List<FileInfo> {
         val mappingPathComponents = request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE)
                 .toString()
                 .split(PATH_COMPONENTS_SEPARATOR)

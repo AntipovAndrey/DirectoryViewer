@@ -1,11 +1,16 @@
 package com.github.antipovandrey.directoryviewer.service.impl.metadata.resolver
 
 import com.github.antipovandrey.directoryviewer.model.FileMetaData
+import com.github.antipovandrey.directoryviewer.model.FileType
+import org.springframework.stereotype.Component
 import java.io.File
 
-class UnknownMetaDataResolver : MetaDataResolver {
+@Component
+class UnknownMetaDataResolver : AbstractMetaDataResolver(emptySet()) {
 
-    override fun resolveMetaData(path: File): FileMetaData? {
-        return null
+    override fun isSupported(path: File): Boolean = true
+
+    override fun resolve(path: File): FileMetaData {
+        return FileMetaData(type = FileType.Unknown)
     }
 }

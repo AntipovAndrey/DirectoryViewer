@@ -1,0 +1,36 @@
+{
+  "properties": [
+    {
+      "name": "directoryviewer.fsroot",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "directoryviewer.extensions.archive",
+      "type": "java.util.Set<String>"
+    },
+    {
+      "name": "directoryviewer.extensions.archive.expandable",
+      "type": "java.util.Set<String>"
+    },
+    {
+      "name": "directoryviewer.extensions.executable",
+      "type": "java.util.Set<String>"
+    },
+    {
+      "name": "directoryviewer.extensions.image",
+      "type": "java.util.Set<String>"
+    },
+    {
+      "name": "directoryviewer.extensions.music",
+      "type": "java.util.Set<String>"
+    },
+    {
+      "name": "directoryviewer.extensions.source",
+      "type": "java.util.Set<String>"
+    },
+    {
+      "name": "directoryviewer.extensions.video",
+      "type": "java.util.Set<String>"
+    }
+  ]
+}
