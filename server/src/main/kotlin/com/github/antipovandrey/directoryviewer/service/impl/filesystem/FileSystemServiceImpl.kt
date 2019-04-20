@@ -24,7 +24,7 @@ class FileSystemServiceImpl(
     }
 
     override fun getRootInfo(): FileInfo {
-        return getFileInfo(rootFile, emptyList())
+        return getFileInfo(rootFile, emptyList()).copy(name = "")
     }
 
     private fun collectMetaData(path: File, pathComponents: List<String>): List<FileInfo> {
