@@ -14,10 +14,6 @@ class FileSystemServiceImpl(
         private val metaDataService: MetaDataService
 ) : FileSystemService {
 
-    override fun getRootDescendants(): List<FileInfo> {
-        return collectMetaData(rootFile, emptyList())
-    }
-
     override fun getDescendantsFor(pathComponents: List<String>): List<FileInfo> {
         val file = pathComponentsResolver.resolve(rootFile, pathComponents)
         return collectMetaData(file, pathComponents)

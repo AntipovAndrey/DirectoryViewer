@@ -25,11 +25,6 @@ class DirectoryViewerController(
         return fileSystemService.getRootInfo()
     }
 
-    @GetMapping("view")
-    fun getRootDescendants(): List<FileInfo> {
-        return fileSystemService.getRootDescendants()
-    }
-
     @GetMapping("view/$WILDCARD_PATTERN")
     fun getDescendantsForPath(request: HttpServletRequest): List<FileInfo> {
         val mappingPathComponents = request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE)
