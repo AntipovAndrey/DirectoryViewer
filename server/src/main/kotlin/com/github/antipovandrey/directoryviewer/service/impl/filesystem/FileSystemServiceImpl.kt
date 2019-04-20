@@ -1,6 +1,8 @@
 package com.github.antipovandrey.directoryviewer.service.impl.filesystem
 
+import com.github.antipovandrey.directoryviewer.ext.toVirtualFile
 import com.github.antipovandrey.directoryviewer.model.FileInfo
+import com.github.antipovandrey.directoryviewer.model.VirtualFile
 import com.github.antipovandrey.directoryviewer.service.FileSystemService
 import com.github.antipovandrey.directoryviewer.service.MetaDataService
 import org.springframework.beans.factory.annotation.Value
@@ -15,30 +17,28 @@ class FileSystemServiceImpl(
 ) : FileSystemService {
 
     override fun getDescendantsFor(pathComponents: List<String>): List<FileInfo> {
-        val file = pathComponentsResolver.resolve(rootFile, pathComponents)
-        return collectMetaData(file, pathComponents)
+        return collectMetaData(pathComponents)
     }
 
     override fun getRootInfo(): FileInfo {
-        return getFileInfo(rootFile, emptyList()).copy(name = "")
+        return getFileInfo(rootFile.toVirtualFile(), emptyList()).copy(name = "")
     }
 
-    private fun collectMetaData(path: File, pathComponents: List<String>): List<FileInfo> {
-        if (!path.isDirectory) throw IllegalArgumentException("File is not expandable: $path")
+    private fun collectMetaData(pathComponents: List<String>): List<FileInfo> {
+        val path: File = pathComponentsResolver.resolve(rootFile, pathComponents)
 
-        val pathList = path.listFiles()?.asList()
-                ?: throw IllegalArgumentException("Cannot expand directory $path")
+        val pathList = path.listFiles()?.asList() ?: throw IllegalArgumentException("Cannot expand directory $path")
 
         return pathList.map { file ->
-            getFileInfo(file, pathComponents)
+            getFileInfo(file.toVirtualFile(), pathComponents)
         }
     }
 
-    private fun getFileInfo(file: File, pathComponents: List<String>): FileInfo {
+    private fun getFileInfo(virtualFile: VirtualFile, pathComponents: List<String>): FileInfo {
         return FileInfo(
                 directoryPathComponents = pathComponents,
-                name = file.name,
-                metaData = metaDataService.getMetaData(file)
+                name = virtualFile.name,
+                metaData = metaDataService.getMetaData(virtualFile)
         )
     }
 }
