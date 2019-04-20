@@ -23,6 +23,10 @@ class FileSystemServiceImpl(
         return collectMetaData(file, pathComponents)
     }
 
+    override fun getRootInfo(): FileInfo {
+        return getFileInfo(rootFile, emptyList())
+    }
+
     private fun collectMetaData(path: File, pathComponents: List<String>): List<FileInfo> {
         if (!path.isDirectory) throw IllegalArgumentException("File is not expandable: $path")
 
@@ -30,11 +34,15 @@ class FileSystemServiceImpl(
                 ?: throw IllegalArgumentException("Cannot expand directory $path")
 
         return pathList.map { file ->
-            FileInfo(
-                    directoryPathComponents = pathComponents,
-                    name = file.name,
-                    metaData = metaDataService.getMetaData(file)
-            )
+            getFileInfo(file, pathComponents)
         }
+    }
+
+    private fun getFileInfo(file: File, pathComponents: List<String>): FileInfo {
+        return FileInfo(
+                directoryPathComponents = pathComponents,
+                name = file.name,
+                metaData = metaDataService.getMetaData(file)
+        )
     }
 }

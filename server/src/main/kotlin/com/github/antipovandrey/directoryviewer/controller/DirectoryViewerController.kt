@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.HandlerMapping
 import javax.servlet.http.HttpServletRequest
 
-@RequestMapping("view")
+@RequestMapping
 @RestController
 class DirectoryViewerController(
         private val fileSystemService: FileSystemService
@@ -20,12 +20,17 @@ class DirectoryViewerController(
         private const val WILDCARD_PATTERN = "**"
     }
 
-    @GetMapping
+    @GetMapping("root")
+    fun getRootInfo(): FileInfo {
+        return fileSystemService.getRootInfo()
+    }
+
+    @GetMapping("view")
     fun getRootDescendants(): List<FileInfo> {
         return fileSystemService.getRootDescendants()
     }
 
-    @GetMapping(WILDCARD_PATTERN)
+    @GetMapping("view/$WILDCARD_PATTERN")
     fun getDescendantsForPath(request: HttpServletRequest): List<FileInfo> {
         val mappingPathComponents = request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE)
                 .toString()

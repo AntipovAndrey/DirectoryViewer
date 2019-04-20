@@ -23,4 +23,11 @@ interface FileSystemService {
      *  @throws IllegalArgumentException if resolved path could not be expanded
      */
     fun getDescendantsFor(pathComponents: List<String>): List<FileInfo>
+
+    /**
+     *  Returns info about a filesystem root
+     *
+     *  @return file info for filesystem root
+     */
+    fun getRootInfo(): FileInfo
 }
