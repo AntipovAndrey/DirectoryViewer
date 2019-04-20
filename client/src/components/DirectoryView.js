@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
+import _ from 'lodash';
 
 import {collapseNode, expandNode, fetchRoot} from '../actions';
 import DirectoryEntry from './DirectoryEntry';
+import {calculateNodeId} from "../utils/nodes";
 
 class DirectoryView extends Component {
 
@@ -12,7 +14,13 @@ class DirectoryView extends Component {
   }
 
   nodeClicked = (entry) => {
-    // todo: add checks
+    if (!entry.metaData.expandable) {
+      return
+    }
+    if (!entry.metaData.expandSupported) {
+      //todo: dialog
+      return
+    }
     if (entry.expanded) {
       this.props.collapseNode(entry)
     } else {
@@ -29,27 +37,29 @@ class DirectoryView extends Component {
 
     return (
       <ul>
-        <DirectoryEntry entry={root} onClick={this.nodeClicked}/>
+        <DirectoryEntry entry={root}
+                        keyProvider={node => calculateNodeId(node)}
+                        onClick={this.nodeClicked}/>
       </ul>
     );
   }
 }
 
-const resolveChild = (node, directories) => {
+const denormalizeChild = (node, directories) => {
   if (!node.child || node.child.length === 0) return [];
   const resolvedChild = node.child.map(child => {
     if (typeof child === 'string') return directories[child];
     return child;
   });
-  resolvedChild.forEach(child => resolveChild(child, directories));
-  node.child = resolvedChild
+  resolvedChild.forEach(child => denormalizeChild(child, directories));
+  node.child = _.sortBy(resolvedChild, 'name')
 };
 
 const mapStateToProps = ({directories}, ownProps) => {
   if (directories) {
     const rootDir = {...directories['/']};
     if (rootDir.child) {
-      resolveChild(rootDir, directories)
+      denormalizeChild(rootDir, directories)
     }
     return {rootDirectory: {...rootDir}}
   }
