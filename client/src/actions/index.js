@@ -1,4 +1,4 @@
-import {EXPAND_NODE, FETCH_ROOT} from './types';
+import {COLLAPSE_NODE, EXPAND_NODE, FETCH_ROOT} from './types';
 import directoryApi from '../api/directoryapi';
 
 export const fetchRoot = () => async dispatch => {
@@ -8,7 +8,7 @@ export const fetchRoot = () => async dispatch => {
 
 export const expandNode = node => async dispatch => {
   const uriPath = `${node.directoryPathComponents.join('/')}/${node.name}`;
-  const res = await directoryApi.get(`/view/${uriPath}`);
+  const res = await directoryApi.get(`/view${uriPath}`);
   dispatch({
     type: EXPAND_NODE,
     payload: {
@@ -17,3 +17,8 @@ export const expandNode = node => async dispatch => {
     }
   })
 };
+
+export const collapseNode = node => ({
+  type: COLLAPSE_NODE,
+  payload: node
+});
