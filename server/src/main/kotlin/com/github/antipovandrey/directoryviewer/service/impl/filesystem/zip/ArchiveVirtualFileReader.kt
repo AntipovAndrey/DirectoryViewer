@@ -5,8 +5,10 @@ import com.github.antipovandrey.directoryviewer.service.impl.filesystem.PathComp
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
-import java.util.zip.ZipFile
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 
 @Component
 class ArchiveVirtualFileReader(
@@ -75,35 +77,89 @@ class ArchiveVirtualFileReader(
     }
 
     private fun readArchive(zipPath: ZipPath): List<VirtualFile> {
-        val (zipRoot, zipComponents) = zipPath
-        if (zipComponents.isEmpty()) throw Exception()
-        if (zipComponents.size != 1) TODO("handle nested zip")
-
-        val (zipName, archivePathComponents) = zipComponents.first()
-
-        val pathRelativeToZip = archivePathComponents
-                .joinToString(separator = "") { pathComponent -> "$pathComponent$zipFilesDelimiter" }
-
-        val archiveFile = zipRoot.resolve(zipName)
-
-        return ZipFile(archiveFile).use { zip ->
-            zip.entries().toList()
-                    .filter { it.name.startsWith(pathRelativeToZip) }
-                    .mapNotNull { it.name.removePrefix(pathRelativeToZip).split(zipFilesDelimiter).firstOrNull() }
-                    .filter { it.isNotEmpty() }
-                    .distinct()
-                    .map { pathRelativeToZip + it }
-                    .map { pathInZip ->
-                        val entry = zip.getEntry(pathInZip)
-                        val archivedFile = archiveFile.resolve(pathInZip)
-                        VirtualFile(
-                                archivedFile.absolutePath,
-                                archivedFile.name,
-                                archivedFile.extension,
-                                entry.isDirectory,
-                                isReadable = true
-                        )
-                    }
+        if (zipPath.components.isEmpty()) {
+            throw IOException("Cannot read archive: zipPath componets list is empty $zipPath")
         }
+
+        val targetFilePath = getRelativeZipPath(zipPath.components.last().pathComponents)
+        val targetEntries = getAllEntries(getTargetZipInputStream(zipPath))
+
+        return getFilesMatchingPath(targetEntries, targetFilePath)
+    }
+
+    private fun getTargetZipInputStream(zipPath: ZipPath): ZipInputStream {
+        val targetZipName = zipPath.components.first().name
+
+        val zipPathParts = zipPath.components.zipWithNext()
+                .map { (prevComponent: ZipPathComponent, nextComponent: ZipPathComponent) ->
+                    getRelativeZipPath(prevComponent.pathComponents) + nextComponent.name
+                }
+
+        val zipInputStream = ZipInputStream(FileInputStream(zipPath.root.resolve(targetZipName)))
+        var targetZipInputStream = zipInputStream
+        zipPathParts.forEach { zipPathPart ->
+            advanceStreamToEntry(targetZipInputStream, zipPathPart)
+            targetZipInputStream = ZipInputStream(targetZipInputStream)
+        }
+        return targetZipInputStream
+    }
+
+    /**
+     *  Moves passed [ZipInputStream] to entry by given [name] and return that entry.
+     *
+     *  @param zipInputStream [ZipInputStream] to advance
+     *  @param name name of entry to look for
+     *  @return found [ZipEntry]
+     *  @throws IOException if entry not found
+     */
+    private fun advanceStreamToEntry(zipInputStream: ZipInputStream, name: String): ZipEntry {
+        while (true) {
+            val entry = zipInputStream.nextEntry ?: break
+            if (entry.name == name) {
+                return entry
+            }
+        }
+        throw IOException("Entry not found : $name")
+    }
+
+
+    /**
+     *  Moves passed [ZipInputStream] to collect all zip entries.
+     *
+     *  @param zipInputStream [ZipInputStream] to collect entries from
+     *  @return collected list of [ZipEntry]s
+     */
+    private fun getAllEntries(zipInputStream: ZipInputStream): List<ZipEntry> {
+        val collected = mutableListOf<ZipEntry>()
+        while (true) {
+            val entry = zipInputStream.nextEntry ?: break
+            collected.add(entry)
+        }
+        return collected
+    }
+
+    private fun getFilesMatchingPath(targetEntries: List<ZipEntry>, targetFilePath: String): List<VirtualFile> {
+        return targetEntries.asSequence()
+                .filter { zipEntry -> zipEntry.name.startsWith(targetFilePath) }
+                .map { zipEntry ->
+                    zipEntry to zipEntry.name
+                            .removePrefix(targetFilePath)
+                            .split(zipFilesDelimiter)
+                            .filter { it.isNotEmpty() }
+                }
+                // looking for the entry itself, not path with child
+                .filter { (_, relativeToTargetComponents) -> relativeToTargetComponents.size == 1 }
+                .map { (zipEntry, relativeToTargetComponents) -> zipEntry to relativeToTargetComponents.first() }
+                .map { (zipEntry, fileName) ->
+                    VirtualFile(
+                            fileName,
+                            File(fileName).extension,
+                            zipEntry.isDirectory,
+                            isReadable = true)
+                }.toList()
+    }
+
+    private fun getRelativeZipPath(pathComponents: List<String>): String {
+        return pathComponents.joinToString(separator = "") { pathComponent -> "$pathComponent$zipFilesDelimiter" }
     }
 }

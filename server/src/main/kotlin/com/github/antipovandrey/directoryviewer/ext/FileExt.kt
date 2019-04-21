@@ -5,7 +5,6 @@ import java.io.File
 
 fun File.toVirtualFile(): VirtualFile {
     return VirtualFile(
-            path = absolutePath,
             extension = extension,
             name = name,
             isDirectory = isDirectory,
