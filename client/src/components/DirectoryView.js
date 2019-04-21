@@ -20,7 +20,7 @@ class DirectoryView extends Component {
       return
     }
     if (!entry.metaData.expandSupported) {
-      //todo: dialog
+      alert(`Expand is not supported for ${entry.name}`);
       return
     }
     if (entry.expanded) {
