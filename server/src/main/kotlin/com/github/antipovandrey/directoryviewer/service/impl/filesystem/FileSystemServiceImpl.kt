@@ -5,6 +5,7 @@ import com.github.antipovandrey.directoryviewer.model.FileInfo
 import com.github.antipovandrey.directoryviewer.model.VirtualFile
 import com.github.antipovandrey.directoryviewer.service.FileSystemService
 import com.github.antipovandrey.directoryviewer.service.MetaDataService
+import com.github.antipovandrey.directoryviewer.service.impl.filesystem.zip.ArchiveVirtualFileReader
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.io.File
