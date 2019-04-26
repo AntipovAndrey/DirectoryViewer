@@ -5,6 +5,7 @@ import com.github.antipovandrey.directoryviewer.model.FileMetaData
 import com.github.antipovandrey.directoryviewer.model.FileType
 import com.github.antipovandrey.directoryviewer.service.impl.filesystem.FileSystemServiceImpl
 import com.github.antipovandrey.directoryviewer.service.impl.filesystem.PathComponentsResolver
+import com.github.antipovandrey.directoryviewer.service.impl.filesystem.validation.PathComponentsValidator
 import com.github.antipovandrey.directoryviewer.service.impl.filesystem.zip.ArchiveVirtualFileReader
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder
@@ -29,13 +30,17 @@ class FileSystemServiceTest {
     @Autowired
     lateinit var metaDataService: MetaDataService
 
+    @Autowired
+    lateinit var pathComponentsValidator: PathComponentsValidator
+
     lateinit var fileSystemServiceImpl: FileSystemServiceImpl
 
     @BeforeEach
     fun setUp() {
         fileSystemServiceImpl = FileSystemServiceImpl(
                 ResourceUtils.getFile(javaClass.classLoader.getResource("testdata")),
-                pathComponentsResolver, archiveVirtualFileReader, metaDataService)
+                pathComponentsResolver, archiveVirtualFileReader, metaDataService, pathComponentsValidator
+        )
     }
 
     @Test

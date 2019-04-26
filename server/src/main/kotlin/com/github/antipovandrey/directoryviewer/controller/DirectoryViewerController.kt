@@ -31,14 +31,15 @@ class DirectoryViewerController(
 
     @GetMapping("view/$WILDCARD_PATTERN")
     fun getDescendantsForPath(request: HttpServletRequest): List<FileInfo> {
-        val mappingPathComponents = request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE)
+        val mappingPathComponentsCount = request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE)
                 .toString()
                 .split(PATH_COMPONENTS_SEPARATOR)
                 .dropLast(1)
-        val wholeUriPathComponents = request.requestURI.split(PATH_COMPONENTS_SEPARATOR)
+                .size
+        val uriPathComponents = request.requestURI.split(PATH_COMPONENTS_SEPARATOR)
+                .drop(mappingPathComponentsCount)
                 .map { URLDecoder.decode(it, "UTF-8"); }
-        val filePathComponents = wholeUriPathComponents - mappingPathComponents
-        log.info("Requested descendant for path: {} original request path: {}", filePathComponents, request.requestURI)
-        return fileSystemService.getDescendantsFor(filePathComponents)
+        log.info("Requested descendant for path: {} original request path: {}", uriPathComponents, request.requestURI)
+        return fileSystemService.getDescendantsFor(uriPathComponents)
     }
 }

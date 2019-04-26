@@ -32,7 +32,7 @@ class DirectoryViewerControllerTest {
     }
 
     @Test
-    fun `tes root endpoint called`() {
+    fun `test root endpoint called`() {
         mvc.perform(get("/view"))
 
         verify { fileSystemService.getDescendantsFor(emptyList()) }
@@ -43,6 +43,13 @@ class DirectoryViewerControllerTest {
         mvc.perform(get("/view/com/example/test/file"))
 
         verify { fileSystemService.getDescendantsFor(listOf("com", "example", "test", "file")) }
+    }
+
+    @Test
+    fun `test endpoint called with path contains mapping path`() {
+        mvc.perform(get("/view/com/example/view/file"))
+
+        verify { fileSystemService.getDescendantsFor(listOf("com", "example", "view", "file")) }
     }
 
     @Test

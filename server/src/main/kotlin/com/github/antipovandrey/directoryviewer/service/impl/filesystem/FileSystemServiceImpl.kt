@@ -5,6 +5,7 @@ import com.github.antipovandrey.directoryviewer.model.FileInfo
 import com.github.antipovandrey.directoryviewer.model.VirtualFile
 import com.github.antipovandrey.directoryviewer.service.FileSystemService
 import com.github.antipovandrey.directoryviewer.service.MetaDataService
+import com.github.antipovandrey.directoryviewer.service.impl.filesystem.validation.PathComponentsValidator
 import com.github.antipovandrey.directoryviewer.service.impl.filesystem.zip.ArchiveVirtualFileReader
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -15,10 +16,12 @@ class FileSystemServiceImpl(
         @Value("\${directoryviewer.fsroot}") private val rootFile: File,
         private val pathComponentsResolver: PathComponentsResolver,
         private val archiveVirtualFileReader: ArchiveVirtualFileReader,
-        private val metaDataService: MetaDataService
+        private val metaDataService: MetaDataService,
+        private val pathComponentsValidator: PathComponentsValidator
 ) : FileSystemService {
 
     override fun getDescendantsFor(pathComponents: List<String>): List<FileInfo> {
+        pathComponentsValidator.check(pathComponents)
         return collectMetaData(pathComponents)
     }
 
