@@ -20,6 +20,12 @@ class FileSystemServiceImpl(
         private val pathComponentsValidator: PathComponentsValidator
 ) : FileSystemService {
 
+    init {
+        if (!rootFile.isDirectory || !rootFile.canRead()) {
+            throw IllegalArgumentException("Root is not a directory: $rootFile")
+        }
+    }
+
     override fun getDescendantsFor(pathComponents: List<String>): List<FileInfo> {
         pathComponentsValidator.check(pathComponents)
         return collectMetaData(pathComponents)
