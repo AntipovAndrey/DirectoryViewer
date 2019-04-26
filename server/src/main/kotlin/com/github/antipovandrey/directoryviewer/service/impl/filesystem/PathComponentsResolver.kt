@@ -19,7 +19,11 @@ class PathComponentsResolver {
     fun resolve(rootFile: File, pathComponents: List<String>): File {
         val resolvedPath = pathComponents.map { File(it) }
                 .fold(rootFile) { acc, next -> acc.resolve(next) }
-        log.info("Resolved path: {}", resolvedPath)
-        return resolvedPath
+
+        val resolvedDereferencePath = resolvedPath.runCatching { toPath().toRealPath().toFile() }
+                .getOrDefault(resolvedPath)
+
+        log.info("Resolved path {} for {}", resolvedDereferencePath, resolvedPath)
+        return resolvedDereferencePath
     }
 }

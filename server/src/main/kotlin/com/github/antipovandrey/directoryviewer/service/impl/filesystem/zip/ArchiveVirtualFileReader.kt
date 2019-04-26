@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
+import java.nio.file.Files
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
@@ -59,7 +60,7 @@ class ArchiveVirtualFileReader(
 
         val archivePathComponentsAccStack = mutableListOf<String>()
         var currentPath: File? = path
-        while (currentPath != null && currentPath != fileThreshold) {
+        while (currentPath != null && !isSameFiles(currentPath, fileThreshold)) {
             if (currentPath.extension == zipExtension) {
                 zipPathComponents.add(ZipPathComponent(currentPath.name, archivePathComponentsAccStack.reversed()))
                 archivePathComponentsAccStack.clear()
@@ -69,11 +70,14 @@ class ArchiveVirtualFileReader(
             currentPath = currentPath.parentFile
         }
 
-        currentPath = currentPath
-                ?: throw IOException("Unexpected absence of parent dir. Check fileThreshold: $fileThreshold")
-
-        val topmostZipFile = pathComponentsResolver.resolve(currentPath, archivePathComponentsAccStack.reversed())
+        val topmostZipFile = pathComponentsResolver.resolve(fileThreshold, archivePathComponentsAccStack.reversed())
         return ZipPath(topmostZipFile, zipPathComponents.reversed())
+    }
+
+    private fun isSameFiles(currentPath: File, fileSystemRoot: File): Boolean {
+        if (currentPath == fileSystemRoot) return true
+        if (!currentPath.exists() || !fileSystemRoot.exists()) return false
+        return (Files.isSameFile(currentPath.toPath(), fileSystemRoot.toPath()))
     }
 
     private fun readArchive(zipPath: ZipPath): List<VirtualFile> {

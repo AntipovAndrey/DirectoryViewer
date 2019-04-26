@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.util.ResourceUtils
 
 /**
@@ -33,6 +34,7 @@ class FileSystemServiceTest {
     @Autowired
     lateinit var pathComponentsValidator: PathComponentsValidator
 
+    @MockBean
     lateinit var fileSystemServiceImpl: FileSystemServiceImpl
 
     @BeforeEach
